@@ -70,7 +70,14 @@ function MainTabs() {
 }
 
 /**
- * Root Stack: Login (layar penuh, tanpa tab) -> MainTabs (Dashboard/History/Profile).
+ * Root Stack: Login (layar penuh, tanpa tab) -> Main (MainTabs: Dashboard/History/Profile).
+ *
+ * CATATAN: route Stack root sengaja dinamai 'Main', BUKAN 'Dashboard',
+ * supaya tidak duplikat dengan Tab.Screen name="Dashboard" di dalam MainTabs.
+ * React Navigation akan memunculkan warning "Found screens with the same
+ * name nested inside one another" kalau dua level navigator punya route
+ * dengan nama sama persis (Dashboard > Dashboard), meski secara teknis app
+ * tetap berjalan. Memberi nama unik di tiap level adalah cara yang benar.
  *
  * CATATAN PENTING soal logout dari ProfileScreens.jsx:
  * ProfileScreens berada DI DALAM Tab Navigator (nested), sedangkan route 'Login'
@@ -83,14 +90,13 @@ function MainTabs() {
  * ProfileScreens.jsx panggil:
  *   navigation.getParent('RootStack')?.replace('Login')
  * Ini langsung menavigasi ke Stack root, alih-alih mencari 'Login' di Tab.
- * (Lihat catatan di bawah file ini untuk patch satu baris di ProfileScreens.jsx)
  */
 export default function AppNavigator() {
   return (
     <NavigationContainer>
       <RootStack.Navigator id="RootStack" screenOptions={{ headerShown: false }}>
         <RootStack.Screen name="Login" component={LoginScreens} />
-        <RootStack.Screen name="Dashboard" component={MainTabs} />
+        <RootStack.Screen name="Main" component={MainTabs} />
       </RootStack.Navigator>
     </NavigationContainer>
   );

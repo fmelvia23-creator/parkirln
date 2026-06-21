@@ -31,7 +31,10 @@ export default function LoginScreens({ navigation }) {
     setLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email.trim(), password);
-      navigation.replace('Dashboard');
+      // Nama route Stack root adalah 'Main' (lihat AppNavigator.jsx),
+      // bukan 'Dashboard' -- supaya tidak duplikat dengan Tab.Screen
+      // name="Dashboard" di dalam MainTabs.
+      navigation.replace('Main');
     } catch (error) {
       const message = mapFirebaseError(error?.code);
       setErrorMsg(message);
