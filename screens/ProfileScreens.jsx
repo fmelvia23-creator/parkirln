@@ -17,7 +17,7 @@ export default function ProfileScreens({ navigation }) {
         style: 'destructive',
         onPress: async () => {
           await signOut(auth);
-          navigation.replace('Login');
+navigation.getParent('RootStack')?.replace('Login');
         },
       },
     ]);

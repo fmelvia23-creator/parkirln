@@ -1,4 +1,10 @@
 // screens/DashboardScreens.jsx
+// VIP Parking System — 4 slot eksklusif.
+// Tiap slot dipantau 3 jenis sensor:
+//   - Ultrasonik #1 (langit-langit)  -> deteksi mobil masuk/keluar slot (status kosong/terisi)
+//   - Ultrasonik #2 (dekat tembok)   -> jarak ke tembok, peringatan jika < 1 meter (resiko nabrak)
+//   - Proximity Induktif (lantai pembatas, area masuk) -> verifikasi plat/besi kendaraan
+//   - Suhu (per slot) -> suhu ruangan di sekitar slot tersebut
 import React, { useEffect, useState, useMemo } from 'react';
 import {
   View,
@@ -9,9 +15,13 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { subscribeParkingSlots, getTarifDanKuota } from '../services/sensorApi';
 
 const AREA_FILTERS = ['Semua', 'A', 'B'];
+
+// Ambang batas jarak ke tembok (meter). Di bawah ini dianggap terlalu dekat.
+const JARAK_AMAN_METER = 1;
 
 export default function DashboardScreens() {
   const [slots, setSlots] = useState([]);
@@ -21,9 +31,6 @@ export default function DashboardScreens() {
   const [tarifInfo, setTarifInfo] = useState(null);
 
   useEffect(() => {
-    // subscribeParkingSlots mensimulasikan data sensor real-time.
-    // Saat sensor ultrasonik mendeteksi mobil, callback ini akan terpanggil lagi
-    // dengan status slot terbaru, dan grid otomatis berubah warna.
     const unsubscribe = subscribeParkingSlots((updatedSlots) => {
       setSlots(updatedSlots);
       setLoading(false);
@@ -64,7 +71,13 @@ export default function DashboardScreens() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Denah Parkir</Text>
+        <View style={styles.headerTitleRow}>
+          <Text style={styles.headerTitle}>VIP Parking</Text>
+          <View style={styles.vipBadge}>
+            <Ionicons name="diamond" size={12} color="#0B1220" />
+            <Text style={styles.vipBadgeText}>VIP</Text>
+          </View>
+        </View>
         <Text style={styles.headerSubtitle}>
           {stats.kosong} kosong · {stats.terisi} terisi dari {stats.total} slot
         </Text>
@@ -112,6 +125,10 @@ export default function DashboardScreens() {
           <View style={[styles.legendDot, { backgroundColor: '#EF4444' }]} />
           <Text style={styles.legendText}>Terisi</Text>
         </View>
+        <View style={styles.legendItem}>
+          <Ionicons name="warning" size={11} color="#F59E0B" />
+          <Text style={styles.legendText}>Jarak &lt; {JARAK_AMAN_METER}m</Text>
+        </View>
       </View>
 
       <FlatList
@@ -133,6 +150,11 @@ export default function DashboardScreens() {
 
 function SlotCard({ slot }) {
   const isKosong = slot.status === 'kosong';
+  const jarakTembok = slot.jarakTembokMeter;
+  const terlaluDekat = typeof jarakTembok === 'number' && jarakTembok < JARAK_AMAN_METER;
+  const suhu = slot.suhuCelsius;
+  const kelembapan = slot.kelembapanPersen;
+
   return (
     <View
       style={[
@@ -140,10 +162,45 @@ function SlotCard({ slot }) {
         isKosong ? styles.slotCardKosong : styles.slotCardTerisi,
       ]}
     >
-      <Text style={styles.slotId}>{slot.id}</Text>
+      <View style={styles.slotTopRow}>
+        <Text style={styles.slotId}>{slot.id}</Text>
+        {terlaluDekat && (
+          <View style={styles.warningBadge}>
+            <Ionicons name="warning" size={11} color="#F59E0B" />
+          </View>
+        )}
+      </View>
+
       <Text style={[styles.slotStatus, { color: isKosong ? '#22C55E' : '#EF4444' }]}>
         {isKosong ? 'Kosong' : 'Terisi'}
       </Text>
+
+      <View style={styles.slotMetaRow}>
+        {typeof suhu === 'number' && (
+          <View style={styles.metaBadge}>
+            <Ionicons name="thermometer-outline" size={11} color="#94A3B8" />
+            <Text style={styles.metaBadgeText}>{suhu}°C</Text>
+          </View>
+        )}
+        {typeof kelembapan === 'number' && (
+          <View style={styles.metaBadge}>
+            <Ionicons name="water-outline" size={11} color="#94A3B8" />
+            <Text style={styles.metaBadgeText}>{kelembapan}%</Text>
+          </View>
+        )}
+        {typeof jarakTembok === 'number' && (
+          <View style={[styles.metaBadge, terlaluDekat && styles.metaBadgeWarning]}>
+            <Ionicons
+              name="resize-outline"
+              size={11}
+              color={terlaluDekat ? '#F59E0B' : '#94A3B8'}
+            />
+            <Text style={[styles.metaBadgeText, terlaluDekat && styles.metaBadgeTextWarning]}>
+              {jarakTembok.toFixed(1)}m
+            </Text>
+          </View>
+        )}
+      </View>
     </View>
   );
 }
@@ -169,10 +226,30 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingBottom: 12,
   },
+  headerTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   headerTitle: {
     fontSize: 24,
     fontWeight: '800',
     color: '#F1F5F9',
+  },
+  vipBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    backgroundColor: '#FBBF24',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 999,
+  },
+  vipBadgeText: {
+    color: '#0B1220',
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 0.5,
   },
   headerSubtitle: {
     fontSize: 13,
@@ -238,7 +315,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingHorizontal: 20,
     marginTop: 16,
-    gap: 16,
+    gap: 14,
+    flexWrap: 'wrap',
   },
   legendItem: {
     flexDirection: 'row',
@@ -262,10 +340,9 @@ const styles = StyleSheet.create({
   slotCard: {
     flex: 1,
     margin: 6,
-    aspectRatio: 1,
+    minHeight: 116,
     borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
+    padding: 10,
     borderWidth: 1.5,
   },
   slotCardKosong: {
@@ -276,17 +353,56 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(239, 68, 68, 0.08)',
     borderColor: '#EF4444',
   },
+  slotTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   slotId: {
-    fontSize: 20,
+    fontSize: 17,
     fontWeight: '800',
     color: '#F1F5F9',
     fontFamily: 'monospace',
   },
+  warningBadge: {
+    width: 20,
+    height: 20,
+    borderRadius: 6,
+    backgroundColor: 'rgba(245, 158, 11, 0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   slotStatus: {
     fontSize: 11,
     fontWeight: '700',
-    marginTop: 4,
+    marginTop: 6,
     letterSpacing: 0.5,
+  },
+  slotMetaRow: {
+    flexDirection: 'row',
+    gap: 4,
+    marginTop: 8,
+    flexWrap: 'wrap',
+  },
+  metaBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(148, 163, 184, 0.12)',
+    paddingHorizontal: 7,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  metaBadgeWarning: {
+    backgroundColor: 'rgba(245, 158, 11, 0.15)',
+  },
+  metaBadgeText: {
+    color: '#94A3B8',
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  metaBadgeTextWarning: {
+    color: '#F59E0B',
   },
   emptyText: {
     color: '#5B6478',
