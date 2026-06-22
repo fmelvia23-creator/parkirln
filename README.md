@@ -10,9 +10,9 @@ Aplikasi mobile (React Native + Expo) untuk memantau status slot parkir mini sec
 
 | Nama | Peran | Tugas |
 |---|---|---|
-| _[Nama Anggota 1]_ | UI/UX & State | Membangun denah slot parkir (warna Hijau = Kosong, Merah = Terisi), state filter pencarian per area (A/B), dan seluruh tampilan screen (Dashboard, History, Profile, Login). |
-| _[Nama Anggota 2]_ | Integrasi Axios | Mengambil data tarif parkir & kuota harian dari MockAPI menggunakan Axios, lengkap dengan fallback agar UI tetap berjalan jika API belum tersedia. |
-| _[Nama Anggota 3]_ | Integrasi Firebase | Menghubungkan autentikasi pengguna (Firebase Authentication) dan menyiapkan struktur data sensor ke Firebase Realtime Database agar status slot dapat diperbarui secara real-time. |
+| _[Elang Aliyyu Hikma (0923040043)] _ | UI/UX & State | Membangun denah slot parkir (warna Hijau = Kosong, Merah = Terisi), state filter pencarian per area (A/B), dan seluruh tampilan screen (Dashboard, History, Profile, Login). |
+| _Farla Melvia Ramadhani (0923040042)_ | Integrasi Axios | Mengambil data tarif parkir & kuota harian dari MockAPI menggunakan Axios, lengkap dengan fallback agar UI tetap berjalan jika API belum tersedia. |
+| _[Muhammad falihuddin al farisi (0923040029)]_ | Integrasi Firebase | Menghubungkan autentikasi pengguna (Firebase Authentication) dan menyiapkan struktur data sensor ke Firebase Realtime Database agar status slot dapat diperbarui secara real-time. |
 
 > Catatan: ganti placeholder nama di atas sebelum dikumpulkan.
 
