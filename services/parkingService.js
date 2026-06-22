@@ -5,8 +5,7 @@ export const getInfoParkir = async () => {
     // Memanggil endpoint spesifik
     const response = await apiClient.get('/parkir_area');
     
-    // Karena MockAPI sering membungkus pakai array [ ], kita ambil data pertama (index 0)
-    // Jika API-mu tidak pakai [ ], cukup gunakan: const dataParkir = response.data;
+  
     const dataParkir = Array.isArray(response.data) ? response.data[0] : response.data;
     
     console.log("Axios Berhasil! Data ditarik:", dataParkir);

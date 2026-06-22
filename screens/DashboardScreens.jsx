@@ -1,10 +1,5 @@
 // screens/DashboardScreens.jsx
 // VIP Parking System — 4 slot eksklusif.
-// Tiap slot dipantau 3 jenis sensor:
-//   - Ultrasonik #1 (langit-langit)  -> deteksi mobil masuk/keluar slot (status kosong/terisi)
-//   - Ultrasonik #2 (dekat tembok)   -> jarak ke tembok, peringatan jika < 1 meter (resiko nabrak)
-//   - Proximity Induktif (lantai pembatas, area masuk) -> verifikasi plat/besi kendaraan
-//   - Suhu (per slot) -> suhu ruangan di sekitar slot tersebut
 import React, { useEffect, useState, useMemo } from 'react';
 import {
   View,
