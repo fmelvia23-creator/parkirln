@@ -1,4 +1,5 @@
 // screens/DashboardScreens.jsx
+// VIP Parking System — 4 slot eksklusif.
 import React, { useEffect, useState, useMemo } from 'react';
 import {
   View,
@@ -73,10 +74,10 @@ export default function DashboardScreens() {
 
   return (
     <ScrollView 
-        style={styles.container}
-        refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#2DD4BF" />
-        }
+      style={styles.container}
+      refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#2DD4BF" />
+      }
     >
       <View style={styles.header}>
         <View style={styles.headerTitleRow}>

@@ -1,20 +1,4 @@
-// services/sensorApi.js
-// VIP Parking System — 10 slot eksklusif (5 slot Area A, 5 slot Area B).
-// Tiap slot dipantau beberapa sensor terpisah:
-//   - ultrasonikMasuk (VL53L0X, langit-langit) -> deteksi mobil masuk/keluar slot
-//   - proximity (induktif, lantai pembatas)     -> verifikasi plat/besi kendaraan pas posisi
-//   - ultrasonikTembok (dekat tembok)           -> jarak ke tembok dalam meter,
-//                                                   peringatan kalau < 1 meter (resiko nabrak)
-//   - suhu (per slot)                           -> suhu ruangan di sekitar slot, dalam Celsius
-//
-// Status tiap sensor disimpan APA ADANYA. Field `status` (kosong/terisi) adalah
-// status akhir yang dipakai DashboardScreens.jsx untuk warna grid. Field
-// `jarakTembokMeter` dan `suhuCelsius` dipakai untuk badge info tambahan di kartu slot.
-//
-// Saat ini pakai DUMMY DATA (Firebase belum siap dari Anggota 3).
-// Begitu Firebase Realtime Database siap, ganti isi getParkingSlots()
-// dan subscribeParkingSlots() memakai kode yang sudah disiapkan di bagian bawah (dikomentari),
-// tanpa perlu ubah apapun di DashboardScreens.jsx.
+
 
 import axiosInstance from './axiosInstance';
 // import { database } from './firebaseConfig';
@@ -55,10 +39,7 @@ export async function getSensorDetailBySlotId(slotId) {
 }
 
 /**
- * Berlangganan perubahan status slot secara real-time.
- * Versi dummy ini mengacak satu slot setiap beberapa detik untuk simulasi sensor:
- * status kosong/terisi, jarak ke tembok, dan suhu semuanya ikut berubah sedikit
- * supaya terasa seperti pembacaan sensor yang hidup.
+ * 
  * @param {(slots: Array) => void} callback
  * @returns {() => void} unsubscribe function
  */
@@ -109,12 +90,7 @@ export async function getTarifDanKuota() {
   }
 }
 
-/**
- * Ambil riwayat keluar-masuk slot untuk HistoryScreens (snapshot sekali, dipakai
- * sebagai data awal sebelum live feed mulai berjalan).
- * Tiap entri menyimpan suhuCelsius, jarakTembokMeter, dan kelembapanPersen pada
- * SAAT kejadian terjadi (snapshot historis), bukan nilai live sekarang.
- */
+
 export async function getParkingHistory() {
   await new Promise((resolve) => setTimeout(resolve, 300));
   return [
@@ -125,11 +101,7 @@ export async function getParkingHistory() {
 }
 
 /**
- * Berlangganan REKAP PEMBACAAN tiap slot secara live, dipanggil ulang setiap
- * 5 detik. Setiap "tick" mengirim satu entri baru berisi snapshot pembacaan
- * SATU slot acak (status, suhu, jarak tembok, kelembapan) lengkap dengan jam
- * saat pembacaan terjadi -- mensimulasikan log sensor yang terus mencatat,
- * bukan cuma kejadian masuk/keluar saja.
+ * 
  *
  * @param {(entry: object) => void} onNewEntry dipanggil setiap kali ada entri baru
  * @returns {() => void} unsubscribe function
@@ -139,7 +111,7 @@ export function subscribeParkingHistory(onNewEntry) {
     const randomSlot = DUMMY_SLOTS[Math.floor(Math.random() * DUMMY_SLOTS.length)];
     const now = new Date();
     const waktu = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
-
+ 
     const entry = {
       id: `live-${now.getTime()}`,
       slotId: randomSlot.id,
@@ -157,13 +129,4 @@ export function subscribeParkingHistory(onNewEntry) {
   return () => clearInterval(interval);
 }
 
-// ---------- VERSI FIREBASE (aktifkan saat siap) ----------
-// export function subscribeParkingSlots(callback) {
-//   const slotsRef = ref(database, 'slots');
-//   const listener = onValue(slotsRef, (snapshot) => {
-//     const data = snapshot.val() || {};
-//     const slots = Object.entries(data).map(([id, value]) => ({ id, ...value }));
-//     callback(slots);
-//   });
-//   return () => off(slotsRef, 'value', listener);
-// }
+

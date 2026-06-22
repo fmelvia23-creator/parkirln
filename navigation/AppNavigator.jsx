@@ -13,8 +13,7 @@ import ProfileScreens from '../screens/ProfileScreens';
 const RootStack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-// Warna ini disamakan dengan palet yang sudah dipakai di semua screen
-// (lihat StyleSheet di DashboardScreens.jsx / HistoryScreens.jsx / ProfileScreens.jsx)
+
 const COLORS = {
   background: '#0B1220',
   card: '#141B2D',
@@ -30,12 +29,7 @@ const TAB_ICONS = {
   Profile: { active: 'person', inactive: 'person-outline' },
 };
 
-/**
- * Bottom Tab Navigator: Dashboard, History, Profile.
- * Ini ditempatkan SATU level di dalam RootStack dengan nama route 'Dashboard',
- * supaya LoginScreens.jsx (yang memanggil navigation.replace('Dashboard'))
- * tidak perlu diubah sama sekali — ia tetap menuju ke seluruh grup Tab ini.
- */
+
 function MainTabs() {
   return (
     <Tab.Navigator
@@ -69,28 +63,6 @@ function MainTabs() {
   );
 }
 
-/**
- * Root Stack: Login (layar penuh, tanpa tab) -> Main (MainTabs: Dashboard/History/Profile).
- *
- * CATATAN: route Stack root sengaja dinamai 'Main', BUKAN 'Dashboard',
- * supaya tidak duplikat dengan Tab.Screen name="Dashboard" di dalam MainTabs.
- * React Navigation akan memunculkan warning "Found screens with the same
- * name nested inside one another" kalau dua level navigator punya route
- * dengan nama sama persis (Dashboard > Dashboard), meski secara teknis app
- * tetap berjalan. Memberi nama unik di tiap level adalah cara yang benar.
- *
- * CATATAN PENTING soal logout dari ProfileScreens.jsx:
- * ProfileScreens berada DI DALAM Tab Navigator (nested), sedangkan route 'Login'
- * didaftarkan di Stack Navigator level atas (parent). Di React Navigation,
- * navigation.replace('Login') yang dipanggil dari dalam nested navigator HANYA
- * akan mencari route 'Login' di level Tab itu sendiri dulu — yang tidak ada di
- * sana — sehingga akan menyebabkan error di runtime.
- *
- * Solusinya: gunakan `id="RootStack"` pada RootStack.Navigator, lalu di
- * ProfileScreens.jsx panggil:
- *   navigation.getParent('RootStack')?.replace('Login')
- * Ini langsung menavigasi ke Stack root, alih-alih mencari 'Login' di Tab.
- */
 export default function AppNavigator() {
   return (
     <NavigationContainer>

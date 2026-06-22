@@ -1,11 +1,5 @@
-// services/axiosInstance.js
-// Instance Axios terpusat untuk semua request ke MockAPI (tarif & kuota harian).
-// Anggota 2 cukup pakai instance ini di sensorApi.js / komponen lain,
-// tidak perlu setup axios berulang-ulang.
-
 import axios from 'axios';
 
-// TODO: ganti BASE_URL dengan endpoint MockAPI tim (https://mockapi.io/projects/...)
 const BASE_URL = 'https://000000.mockapi.io/api/v1';
 
 const axiosInstance = axios.create({
