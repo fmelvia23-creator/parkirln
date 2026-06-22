@@ -1,5 +1,3 @@
-// screens/DashboardScreens.jsx
-// VIP Parking System — 4 slot eksklusif.
 import React, { useEffect, useState, useMemo } from 'react';
 import {
   View,
