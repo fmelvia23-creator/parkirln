@@ -6,7 +6,7 @@ import { getFirestore } from "firebase/firestore";
 
 // Kunci asli 100% valid dari Project Radahn Paduka
 const firebaseConfig = {
-  apiKey: "AIzaSyChP4JTIIhMFPqWtmXWaxMF-5yCD-QlJo0", //
+  apiKey: "AIzaSyChP4JTIihMFPqWtmXWaxMF-5yCD-QlJo0", //
   authDomain: "radahn-1aef8.firebaseapp.com",        //
   projectId: "radahn-1aef8",                         //
   storageBucket: "radahn-1aef8.firebasestorage.app", //
