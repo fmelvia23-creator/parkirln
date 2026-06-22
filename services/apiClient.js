@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'https://6a376953c105017aa638ef78.mockapi.io/api/slotparkir/';
+const BASE_URL = 'https://6a376953c105017aa638ef78.mockapi.io/api/slotparkir';
 
 const apiClient = axios.create({
   baseURL: BASE_URL,

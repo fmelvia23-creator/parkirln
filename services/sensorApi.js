@@ -68,7 +68,7 @@ export function subscribeParkingSlots(callback) {
       };
     });
     callback(DUMMY_SLOTS);
-  }, 6000);
+  }, 5000);
 
   return () => clearInterval(interval);
 }
@@ -78,8 +78,18 @@ export function subscribeParkingSlots(callback) {
  */
 export async function getTarifDanKuota() {
   try {
-    const response = await axiosInstance.get('/tarif');
-    return response.data;
+    const response = await axiosInstance.get('/parkir_area');
+    
+    // Ambil data pertama dari array MockAPI
+    const dataApi = response.data[0];
+
+    // Petakan ke variabel yang dikenali UI temanmu
+    return {
+      tarifPerJam: dataApi.tarif_per_jam,
+      kuotaHarian: dataApi.kuota_total,
+      kuotaTerpakai: dataApi.kuota_terpakai,
+    };
+    
   } catch (error) {
     console.log('[sensorApi] Gagal ambil tarif dari MockAPI, pakai fallback:', error?.message);
     return {

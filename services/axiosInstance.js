@@ -1,10 +1,10 @@
 import axios from 'axios';
 
-const BASE_URL = 'https://000000.mockapi.io/api/v1';
+const BASE_URL = 'https://6a376953c105017aa638ef78.mockapi.io/api/slotparkir';
 
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
-  timeout: 10000,
+  timeout: 5000,
   headers: {
     'Content-Type': 'application/json',
   },
