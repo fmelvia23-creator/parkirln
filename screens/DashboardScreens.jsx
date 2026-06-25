@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  FlatList,
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
@@ -17,22 +16,20 @@ const JARAK_AMAN_METER = 1;
 
 export default function DashboardScreens() {
   const [slots, setSlots] = useState([]);
-  const [history, setHistory] = useState([]); // State baru buat history
+  const [history, setHistory] = useState([]); 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [areaFilter, setAreaFilter] = useState('Semua');
   const [tarifInfo, setTarifInfo] = useState(null);
 
   useEffect(() => {
-    // 1. Subscribe ke Slot (RTDB)
     const unsubSlots = subscribeParkingSlots((updatedSlots) => {
       setSlots(updatedSlots);
       setLoading(false);
     });
 
-    // 2. Subscribe ke History (Firestore)
     const unsubHistory = subscribeParkingHistory((newEntry) => {
-      setHistory((prev) => [newEntry, ...prev].slice(0, 5)); // Ambil 5 data terbaru
+      setHistory((prev) => [newEntry, ...prev].slice(0, 5));
     });
 
     getTarifDanKuota().then(setTarifInfo);
@@ -134,12 +131,10 @@ export default function DashboardScreens() {
         </View>
       </View>
 
-      {/* Grid Slot */}
       <View style={styles.gridContainer}>
         {filteredSlots.map((item) => <SlotCard key={item.id} slot={item} />)}
       </View>
 
-      {/* Bagian History Firestore */}
       <View style={styles.historySection}>
         <Text style={styles.sectionTitle}>History Sensor (Live)</Text>
         {history.length === 0 ? (
@@ -161,23 +156,24 @@ export default function DashboardScreens() {
 
 function SlotCard({ slot }) {
   const isKosong = slot.status === 'kosong';
-  const jarakTembok = slot.jarakTembokMeter;
-  const terlaluDekat = typeof jarakTembok === 'number' && jarakTembok < JARAK_AMAN_METER;
+  const jarakCm = typeof slot.jarakTembokMeter === 'number' ? Math.round(slot.jarakTembokMeter * 100) : 0;
   const suhu = slot.suhuCelsius;
-  const kelembapan = slot.kelembapanPersen;
+  const isWarning = slot.isWarning === true; // Menggunakan status dari sensorApi
+  const isA1 = slot.id === 'A1';
 
   return (
     <View
       style={[
         styles.slotCard,
         isKosong ? styles.slotCardKosong : styles.slotCardTerisi,
+        isA1 && styles.slotCardFullWidth
       ]}
     >
       <View style={styles.slotTopRow}>
         <Text style={styles.slotId}>{slot.id}</Text>
-        {terlaluDekat && (
+        {isWarning && (
           <View style={styles.warningBadge}>
-            <Ionicons name="warning" size={11} color="#F59E0B" />
+            <Ionicons name="warning" size={14} color="#F59E0B" />
           </View>
         )}
       </View>
@@ -190,16 +186,12 @@ function SlotCard({ slot }) {
         {typeof suhu === 'number' && (
           <View style={styles.metaBadge}>
             <Ionicons name="thermometer-outline" size={11} color="#94A3B8" />
-            <Text style={styles.metaBadgeText}>{suhu}°C</Text>
+            <Text style={styles.metaBadgeText}>{suhu === 0 ? '--' : suhu}°C</Text>
           </View>
         )}
-        {typeof jarakTembok === 'number' && (
-          <View style={[styles.metaBadge, terlaluDekat && styles.metaBadgeWarning]}>
-            <Text style={[styles.metaBadgeText, terlaluDekat && styles.metaBadgeTextWarning]}>
-              {jarakTembok.toFixed(1)}m
-            </Text>
-          </View>
-        )}
+        <View style={styles.metaBadge}>
+            <Text style={styles.metaBadgeText}>{jarakCm} cm</Text>
+        </View>
       </View>
     </View>
   );
@@ -231,11 +223,12 @@ const styles = StyleSheet.create({
   legendText: { color: '#94A3B8', fontSize: 12 },
   gridContainer: { flexDirection: 'row', flexWrap: 'wrap', padding: 8 },
   slotCard: { width: '30%', margin: '1.6%', minHeight: 116, borderRadius: 16, padding: 10, borderWidth: 1.5 },
+  slotCardFullWidth: { width: '96.8%' },
   slotCardKosong: { backgroundColor: 'rgba(34, 197, 94, 0.08)', borderColor: '#22C55E' },
   slotCardTerisi: { backgroundColor: 'rgba(239, 68, 68, 0.08)', borderColor: '#EF4444' },
   slotTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   slotId: { fontSize: 17, fontWeight: '800', color: '#F1F5F9', fontFamily: 'monospace' },
-  warningBadge: { width: 20, height: 20, borderRadius: 6, backgroundColor: 'rgba(245, 158, 11, 0.15)', alignItems: 'center', justifyContent: 'center' },
+  warningBadge: { width: 26, height: 26, borderRadius: 8, backgroundColor: 'rgba(245, 158, 11, 0.15)', alignItems: 'center', justifyContent: 'center' },
   slotStatus: { fontSize: 11, fontWeight: '700', marginTop: 6 },
   slotMetaRow: { flexDirection: 'row', gap: 4, marginTop: 8, flexWrap: 'wrap' },
   metaBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: 'rgba(148, 163, 184, 0.12)', paddingHorizontal: 7, paddingVertical: 4, borderRadius: 8 },
